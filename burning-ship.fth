@@ -19,6 +19,11 @@ over over
 drop drop
 ;
 
+( fp1, fp2 -> fp2, fp1 )
+: fswap
+4 roll 4 roll
+;
+
 ( x -> bool )
 : f0=
 0 =
@@ -55,11 +60,7 @@ then
 
 ( x -> x )
 : fabs
-fdup
-fdup
-f*
-fswap
-f/
+32767 and
 ;
 
 : burningship

@@ -68,11 +68,7 @@ then
 
 ( x -> x )
 : fabs
-fdup
-fdup
-f*
-fswap
-f/
+32767 and
 ;
 
 ( Below is sourced from the Jupiter Ace Manual: Chapter 15 page 89 )
