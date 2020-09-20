@@ -123,11 +123,12 @@ fswap fdup f* ( tx * tx )
 f+ ( tx * tx + ty + ty )
 4.0 f<
 if
-  ( t = | tx * tx - ty * ty + x | )
+  ( tx_new = | tx * tx - ty * ty + x | )
   fover ( ty' )
   fover ( tx' )
+  fdup
   f*
-  fswap
+  fswap fdup
   f*
   f-
   10 pick
@@ -135,7 +136,7 @@ if
   f+
   fabs
 
-  ( | 2 * tx * ty + y | )
+  ( ty_new = | 2 * tx * ty + y | )
   frot
   frot
   f*
@@ -145,7 +146,7 @@ if
   f+
   fabs
 
-  ( k + 1 )
+  ( k_new = k + 1 )
   9 roll ( k on TOS )
   1+
   9 roll 9 roll
