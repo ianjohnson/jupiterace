@@ -155,6 +155,7 @@ if
   9 roll 9 roll
 
   burningship-iter
+  exit
 then
 
 fdrop ( drop ty )
@@ -182,4 +183,10 @@ do
     then
   loop
 loop
+;
+
+: run
+invis
+cls
+burningship
 ;
