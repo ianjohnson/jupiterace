@@ -9,17 +9,17 @@ sy ufloat sx ufloat f/
 
 ( -> fp )
 : ox
--2.15
+-1.6
 ;
 
 ( -> fp )
 : oy
--1.669
+-0.9
 ;
 
 ( -> fp )
 : wx
-3.4
+3.8
 ;
 
 ( -> fp )
