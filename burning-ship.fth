@@ -9,6 +9,59 @@ wx aspect f* constant wy
 sx wx f/ constant xf
 sy wy f/ constant yf
 
+( fp -> fp, fp )
+: fdup
+over over
+;
+
+( fp -> )
+: fdrop
+drop drop
+;
+
+( x -> bool )
+: f0=
+0 =
+if
+  0 =
+  if
+    1
+    exit
+  then
+else
+  drop
+then
+0
+;
+
+( x y -> bool )
+: f>
+f-
+fdup f0=
+if
+  fdrop
+  0
+  exit
+then
+swap
+drop
+0 <
+if
+  0
+  exit
+then
+1
+;
+
+( x -> x )
+: fabs
+fdup
+fdup
+f*
+fswap
+f/
+;
+
 : burningship
 sy int 0
 do
@@ -51,109 +104,8 @@ if
   ( return k on TOS )
 then
 
-
-
 rot 1+
 
 dup f*
 ;
 
-( x -> bool )
-: f0=
-0 =
-if
-  0 =
-  if
-    1
-    exit
-  then
-then
-0
-;
-
-( x y -> bool )
-: f<
-dup 0<
-if
-  f-
-else
-  f+
-then
-fdup f0=
-if
-  fdrop
-  0
-  exit
-then
-swap
-drop
-0 >
-if
-  0
-  exit
-then
-1
-;
-
-( x y -> bool )
-: f=
-f- f0=
-;
-
-( x y -> bool )
-: f>
-dup 0<
-if
-  f+
-else
-  f-
-then
-fdup f0=
-if
-  fdrop
-  0
-  exit
-then
-swap
-drop
-0 <
-if
-  0
-  exit
-then
-1
-;
-
-( x -> bool )
-: f0<
-0.0 f<
-;
-
-( x -> bool )
-: f0>
-0.0 f>
-;
-
-( x -> x )
-: fabs
-fdup
-fdup
-f*
-fswap
-f/
-;
-
-: fdup
-over
-over
-;
-
-: fswap
-4 roll
-4 roll
-;
-
-: fdrop
-drop
-drop
-;
