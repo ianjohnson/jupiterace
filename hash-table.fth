@@ -143,6 +143,12 @@
     exit
   then
 
+  ( increment the number of entries )
+  3 pick dup @ 1+ swap !
+
+  ( set slot to occupied )
+  dup 255 swap c!
+
   _hash-array-user-slot-addr 
   3 pick hash-key-size +
   rot drop
@@ -159,7 +165,7 @@
 (  - cmp_func_addr = Address of the word used to compare a key             )
 (                                                                          )
 ( Parameter list:                                                          )
-(  - Number of entries                                                     )
+(  - Number of entries MUST BE FIRST                                       )
 (  - Maximum number of entries                                             )
 (  - Key size in bytes                                                     )
 (  - Value size in bytes                                                   )
