@@ -53,10 +53,11 @@
 ( hash addr n -> addr )
 : _hash-array-slot-addr
   over _hash-bucket-size * ( addr offset to slot )
+  _hash-array-addr
   +
 ;
 
-( hash addr -> user slot addr )
+( slot_addr -> user_slot_addr )
 : _hash-array-slot-user-addr
   1+
 ;
@@ -186,8 +187,8 @@ definer hashtable
   3 pick 2 * , ( value size in bytes )
   , ( cmp func addr )
   , ( hash func add )
-  + 1+ dup , ( bucket size in bytes, including occupied flag )
-  * 2 * ( size of collision list in bytes )
+  + 2 * 1+ dup , ( bucket size in bytes, including occupied flag )
+  * ( size of collision list in bytes )
   allot
 does>
   dup hash-size 0
