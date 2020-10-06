@@ -85,6 +85,8 @@
       _hash-cmp-func execute ( hash_addr key bucket_index key_cmp_flag )
       if             ( hash_addr key bucket_index )
         0
+      else
+        1
       then
     else
       1
