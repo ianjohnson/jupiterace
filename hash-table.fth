@@ -159,6 +159,43 @@
   new
 ;
 
+: count
+  dup 1+ swap c@
+;
+
+( Delayed dispatch word )
+definer deldis
+  42 c, 59 c, 60 c, ( ld hl,(SPARE) ; SPARE sys-var 0x3c3b (15419) )
+  43 c,             ( dec hl        ; SPARE is the addr of the first byte above TOS )
+  43 c,             ( dec hl        ; addr of the machine code is in (hl)
+  126 c,            ( ld a,(hl)
+  35 c,             ( inc hl )
+  102 c,            ( ld h,(hl)
+  111 c,            ( ld l,a        ; hl is address of first opcode in this machine code )
+  17 c, 21 c, 00 c, ( ld de,21 )
+  25 c,             ( add hl,de     ; point hl to the length of the string )
+  175 c,            ( xor a )
+  71 c,             ( ld b,a )
+  78 c,             ( ld c,(hl)
+  35 c,             ( inc hl )
+  235 c,            ( ex de,hl )
+  195 c, 68 c, 6 c, ( jp 0x0644 )
+  ascii > word count dup c,
+  over + swap
+  do
+    i c@ c,
+  loop
+  does>
+    call dup 0 =
+    if
+      ." ERROR 13"
+      cr
+      abort
+    else
+      execute
+    then
+;
+
 ( Open address hash table definer                                          )
 ( Arguments:                                                               )
 (  - size = maximum number of buckets                                      )
