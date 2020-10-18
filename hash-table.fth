@@ -3,6 +3,35 @@
 0 constant new
 1 constant re-entry
 2 constant full
+16 base c!
+fde8 constant findword
+decimal
+
+: count
+  dup 1+ swap c@
+;
+
+( String )
+definer string
+  ascii " word count dup c,
+  over + swap
+  do
+    i c@ c,
+  loop
+  does>
+;
+
+( string addr -> n )
+: thunk
+  findword call dup 0=
+  if
+    ." ERROR 13"
+    cr
+    abort
+  else
+    execute
+  then
+;
 
 ( hash addr -> n )
 : hash-no-entries
@@ -16,7 +45,7 @@
 ;
 
 ( hash_addr -> n )
-: hash-key-size
+hf: hash-key-size
   4 +
   @
 ;
@@ -28,13 +57,13 @@
 ;
 
 ( hash addr -> addr of word )
-: _hash-cmp-func
+: _hash-cmp-func-name
   8 +
   @
 ;
 
 ( hash addr -> addr of word )
-: _hash-func
+: _hash-func-name
   10 +
   @
 ;
@@ -66,7 +95,7 @@
 : hash-find-slot
   over over          ( hash_addr key hash_addr key )
   swap               ( hash_addr key key hash_addr )
-  _hash-func execute ( hash_addr key hash )
+  _hash-func-name thunk ( hash_addr key hash )
   3 pick             ( hash_addr key hash hash_addr )
   hash-size          ( hash_addr key hash hash_size )
   mod                ( hash_addr key bucket_index )
@@ -82,7 +111,7 @@
       1+             ( hash_addr key bucket_index bucket_addr )
       3 pick         ( hash_addr key bucket_index bucket_addr key )
       5 pick         ( hash_addr key bucket_index bucket_addr key hash_addr )
-      _hash-cmp-func execute ( hash_addr key bucket_index key_cmp_flag )
+      _hash-cmp-func-name thunk ( hash_addr key bucket_index key_cmp_flag )
       if             ( hash_addr key bucket_index )
         0
       else
@@ -159,50 +188,14 @@
   new
 ;
 
-: count
-  dup 1+ swap c@
-;
-
-( Delayed dispatch word )
-definer deldis
-  42 c, 59 c, 60 c, ( ld hl,(SPARE) ; SPARE sys-var 0x3c3b (15419) )
-  43 c,             ( dec hl        ; SPARE is the addr of the first byte above TOS )
-  43 c,             ( dec hl        ; addr of the machine code is in (hl)
-  126 c,            ( ld a,(hl)
-  35 c,             ( inc hl )
-  102 c,            ( ld h,(hl)
-  111 c,            ( ld l,a        ; hl is address of first opcode in this machine code )
-  17 c, 21 c, 00 c, ( ld de,21 )
-  25 c,             ( add hl,de     ; point hl to the length of the string )
-  175 c,            ( xor a )
-  71 c,             ( ld b,a )
-  78 c,             ( ld c,(hl)
-  35 c,             ( inc hl )
-  235 c,            ( ex de,hl )
-  195 c, 68 c, 6 c, ( jp 0x0644 )
-  ascii > word count dup c,
-  over + swap
-  do
-    i c@ c,
-  loop
-  does>
-    call dup 0 =
-    if
-      ." ERROR 13"
-      cr
-      abort
-    else
-      execute
-    then
-;
-
 ( Open address hash table definer                                          )
 ( Arguments:                                                               )
 (  - size = maximum number of buckets                                      )
 (  - key_size = the size of the key in cells                               )
 (  - value_size = the size of the value in cells                           )
-(  - hash_func_addr = Address of the word used to calculate the hash value )
-(  - cmp_func_addr = Address of the word used to compare a key             )
+(  - hash_func_name = Name, string, of the word used to calculate the hash )
+(                     value                                                )
+(  - cmp_func_name = Name, stirng, of the word used to compare a key       )
 (                                                                          )
 ( Parameter list:                                                          )
 (  - Number of entries MUST BE FIRST                                       )
