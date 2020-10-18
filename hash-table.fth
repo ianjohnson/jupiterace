@@ -3,22 +3,19 @@
 0 constant new
 1 constant re-entry
 2 constant full
-16 base c!
-fde8 constant findword
-decimal
+65000 constant findword
 
 : count
   dup 1+ swap c@
 ;
 
 ( String )
-definer string
+: stringifgy
   ascii " word count dup c,
   over + swap
   do
     i c@ c,
   loop
-  does>
 ;
 
 ( string addr -> n )
@@ -40,12 +37,12 @@ definer string
 
 ( hash addr -> n )
 : hash-size
-  2 +
+  2+
   @
 ;
 
 ( hash_addr -> n )
-hf: hash-key-size
+: hash-key-size
   4 +
   @
 ;
@@ -56,8 +53,8 @@ hf: hash-key-size
   @
 ;
 
-( hash addr -> addr of word )
-: _hash-cmp-func-name
+( hash addr -> n )
+: _hash-bucket-size
   8 +
   @
 ;
@@ -65,18 +62,20 @@ hf: hash-key-size
 ( hash addr -> addr of word )
 : _hash-func-name
   10 +
-  @
 ;
 
-( hash addr -> n )
-: _hash-bucket-size
-  12 +
-  @
+( hash addr -> addr of word )
+: _hash-cmp-func-name
+  _hash-func-name
+  dup c@ +
+  1+
 ;
 
 ( hash addr -> addr )
 : _hash-array-addr
-  14 +
+  _hash-cmp-func-name
+  dup c@ +
+  1+
 ;
 
 ( hash addr n -> addr )
@@ -197,6 +196,9 @@ hf: hash-key-size
 (                     value                                                )
 (  - cmp_func_name = Name, stirng, of the word used to compare a key       )
 (                                                                          )
+( Usage:                                                                   )
+(   200 1 1 hashtable ht [hash word name]"[compare word name]"             )
+(                                                                          )
 ( Parameter list:                                                          )
 (  - Number of entries MUST BE FIRST                                       )
 (  - Maximum number of entries                                             )
@@ -212,14 +214,14 @@ hf: hash-key-size
 (  - Key                                                                   )
 (  - Value                                                                 )
 definer hashtable
-  ( size key_size value_size hash_func_addr cmp_func_addr )
+  ( size key_size value_size )
   0 , ( no entries in hash table )
-  5 pick , ( size of hash table )
-  4 pick 2 * , ( key size in bytes )
-  3 pick 2 * , ( value size in bytes )
-  , ( cmp func addr )
-  , ( hash func add )
+  3 pick , ( size of hash table )
+  2 pick 2 * , ( key size in bytes )
+  dup 2 * , ( value size in bytes )
   + 2 * 1+ dup , ( bucket size in bytes, including occupied flag )
+  stringify ( hash func name )
+  stringify ( cmp func name )
   * ( size of collision list in bytes )
   allot
 does>
