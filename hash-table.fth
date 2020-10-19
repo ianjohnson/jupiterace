@@ -2,7 +2,8 @@
 
 0 constant new
 1 constant re-entry
-2 constant full
+2 constant full-soft-limit
+3 constant full-hard-limit
 65000 constant findword
 
 : count
@@ -18,7 +19,7 @@
   loop
 ;
 
-( string addr -> n )
+( string_addr -> [n] )
 : thunk
   findword call dup 0=
   if
@@ -30,12 +31,12 @@
   then
 ;
 
-( hash addr -> n )
+( hash_addr -> n )
 : hash-no-entries
   @
 ;
 
-( hash addr -> n )
+( hash_addr -> n )
 : hash-size
   2+
   @
@@ -53,35 +54,35 @@
   @
 ;
 
-( hash addr -> n )
+( hash_addr -> n )
 : _hash-bucket-size
   8 +
   @
 ;
 
-( hash addr -> addr of word )
+( hash_addr -> addr of word )
 : _hash-func-name
   10 +
 ;
 
-( hash addr -> addr of word )
+( hash_addr -> addr of word )
 : _hash-cmp-func-name
   _hash-func-name
   dup c@ +
   1+
 ;
 
-( hash addr -> addr )
+( hash_addr -> addr )
 : _hash-array-addr
   _hash-cmp-func-name
   dup c@ +
   1+
 ;
 
-( hash addr n -> addr )
+( hash_addr n -> addr )
 : _hash-array-slot-addr
   over _hash-bucket-size * ( addr offset to slot )
-  _hash-array-addr
+  swap _hash-array-addr
   +
 ;
 
@@ -92,87 +93,80 @@
 
 ( hash_addr key -> bucket_index )
 : hash-find-slot
-  over over          ( hash_addr key hash_addr key )
-  swap               ( hash_addr key key hash_addr )
-  _hash-func-name thunk ( hash_addr key hash )
-  3 pick             ( hash_addr key hash hash_addr )
-  hash-size          ( hash_addr key hash hash_size )
-  mod                ( hash_addr key bucket_index )
+  over over                      ( hash_addr key hash_addr key )
+  swap                           ( hash_addr key key hash_addr )
+  _hash-func-name thunk          ( hash_addr key hash )
+  3 pick                         ( hash_addr key hash hash_addr )
+  hash-size                      ( hash_addr key hash hash_size )
+  mod                            ( hash_addr key bucket_index )
   begin
-    dup              ( hash_addr key bucket_index bucket_index )
-    4 pick           ( hash_addr key bucket_index bucket_index hash_addr )
-    swap             ( hash_addr key bucket_index hash_addr bucket_index )
-    _hash-array-slot-addr dup ( hash_addr key bucket_index bucket_addr bucket_addr )
-    c@               ( hash_addr key bucket_index bucket_addr occupied_flag )
-    1 and 1 =        ( hash_addr key bucket_index bucket_addr masked_occupied_flag )
-    if               ( hash_addr key bucket_index bucket_addr )
+    dup                          ( hash_addr key bucket_index bucket_index )
+    4 pick                       ( hash_addr key bucket_index bucket_index hash_addr )
+    swap                         ( hash_addr key bucket_index hash_addr bucket_index )
+    _hash-array-slot-addr dup    ( hash_addr key bucket_index bucket_addr bucket_addr )
+    c@                           ( hash_addr key bucket_index bucket_addr occupied_flag )
+    1 and                        ( hash_addr key bucket_index bucket_addr masked_occupied_flag )
+    if                           ( hash_addr key bucket_index bucket_addr )
       ( Slot user data is after the byte flag )
-      1+             ( hash_addr key bucket_index bucket_addr )
-      3 pick         ( hash_addr key bucket_index bucket_addr key )
-      5 pick         ( hash_addr key bucket_index bucket_addr key hash_addr )
-      _hash-cmp-func-name thunk ( hash_addr key bucket_index key_cmp_flag )
-      if             ( hash_addr key bucket_index )
-        0
-      else
-        1
-      then
+      _hash-array-slot-user-addr ( hash_addr key bucket_index bucket_addr )
+      3 pick                     ( hash_addr key bucket_index bucket_addr key )
+      5 pick                     ( hash_addr key bucket_index bucket_addr key hash_addr )
+      _hash-cmp-func-name thunk  ( hash_addr key bucket_index key_cmp_flag )
     else
-      1
+      drop                       ( hash_addr key bucket_index )
+      0
     then
   while
     1+
     3 pick hash-size mod
   repeat  
-                     ( hash_addr key bucket_index )
-  rot drop           ( key bucket_index )
-  swap drop          ( bucket_index )
+                                 ( hash_addr key bucket_index )
+  rot drop                       ( key bucket_index )
+  swap drop                      ( bucket_index )
 ;
 
-( hash_addr key -> slot_addr )
+( hash_addr key -> user_slot_value_addr )
 : hash-lookup
-  ( hash_addr key )
-  hash-find-slot     ( hash_addr key bucket_index )
+  over over                             ( hash_addr key hash_addr key )
+  hash-find-slot                        ( hash_addr key bucket_index )
   3 pick swap _hash-array-slot-addr dup ( hash_addr key slot_addr slot_addr )
-  c@ 1 and 1 =
-  if
-    ( slot is occupied )
-    _hash-array-user-slot-addr
+  c@ 1 and
+  if                                    ( hash_addr key slot_addr )
+    ( slot is occupied, i.e. found )
+    _hash-array-slot-user-addr
     ( Return the slot's value addr )
-    3 pick hash-key-size +
+    rot hash-key-size +                 ( key user_slot_value_addr )
+    swap drop                           ( user_slot_value_addr )
   else
     ( not found )
-    drop
+    drop drop drop
     0
   then
-  rot drop
-  swap drop
 ;
 
-( hash_addr key -> [slot_value_addr] set_result )
+( hash_addr key -> [ussr_slot_value_addr] set_result )
 : hash-set
-  over over ( hash_addr key hash_addr key )
-  hash-find-slot ( hash_addr key bucket_index )
-  3 pick swap _hash-array-slot-addr dup ( hash_addr key slot_addr slot_addr )
-  c@ 1 and 1 =                          ( hash_addr key slot_addr occupied_flag )
+  over over                    ( hash_addr key hash_addr key )
+  hash-find-slot               ( hash_addr key bucket_index )
+  3 pick swap                  ( hash_addr key hash_addr bucket_index )
+  _hash-array-slot-addr dup    ( hash_addr key slot_addr slot_addr )
+  c@ 1 and                     ( hash_addr key slot_addr occupied_flag )
   if
     ( slot is occupied, overwrite the value )
-    _hash-array-user-slot-addr          ( hash_addr key slot_key_addr )
-    3 pick hash-key-size +              ( hash_addr key slot_value_addr )
-    rot drop
+    _hash-array-slot-user-addr ( hash_addr key slot_key_addr )
+    rot hash-key-size +        ( hash_addr key slot_value_addr )
     swap drop
     re-entry
     exit
   then
 
-  ( hash_addr key slot_addr )
-  3 pick dup hash-no-entries swap hash-size 3 * 4 / >
+  3 pick dup                   ( hash_addr key slot_addr hash_addr hash_addr )
+  hash-no-entries swap hash-size =
   if
-    ( TODO: Rebuild a bigger hash table )
-    rot drop
-    swap drop
-    full
+    drop drop drop
+    full-hard-limit
     exit
-  then
+  then                         ( hash_addr key slot_addr )
 
   ( increment the number of entries )
   3 pick dup @ 1+ swap !
@@ -180,11 +174,20 @@
   ( set slot to occupied )
   dup 255 swap c!
 
-  _hash-array-user-slot-addr 
-  3 pick hash-key-size +
-  rot drop
-  swap drop
-  new
+  _hash-array-slot-user-addr  ( hash_addr key user_slot_addr )
+  ( store key )
+  dup 3 pick swap             ( hash_addr key user_slot_addr key user_slot_addr )
+  !                           ( hash_addr key user_slot_addr )
+  3 pick hash-key-size +      ( hash_addr key user_slot_value_addr )
+
+  rot dup hash-no-entries swap hash-size 7 * 10 / > ( key user_slot_value_addr )
+  if
+    swap drop
+    full-soft-limit
+  else
+    swap drop
+    new
+  then
 ;
 
 ( Open address hash table definer                                          )
