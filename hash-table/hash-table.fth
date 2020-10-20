@@ -6,6 +6,10 @@
 3 constant full-hard-limit
 65000 constant findword
 
+( Set RAM top )
+findword 15384 ! quit
+findword 59 bload fndwrd.bin
+
 : count
   dup 1+ swap c@
 ;
@@ -109,8 +113,8 @@
     if                           ( hash_addr key bucket_index bucket_addr )
       ( Slot user data is after the byte flag )
       _hash-array-slot-user-addr ( hash_addr key bucket_index bucket_addr )
-      3 pick                     ( hash_addr key bucket_index bucket_addr key )
-      5 pick                     ( hash_addr key bucket_index bucket_addr key hash_addr )
+      3 pick swap                ( hash_addr key bucket_index key bucket_addr )
+      5 pick                     ( hash_addr key bucket_index key bucket_addr hash_addr )
       _hash-cmp-func-name thunk  ( hash_addr key bucket_index key_cmp_flag )
     else
       drop                       ( hash_addr key bucket_index )
@@ -144,8 +148,9 @@
   then
 ;
 
-( hash_addr key -> [user_slot_[key|value]_addr] set_result                    )
-( If set_result = new-entry or full-soft-limit then key address is in TOS - 1 )
+( hash_addr key -> [user_slot_addrs] set_result                               )
+( If set_result = new-entry or full-soft-limit                                ) 
+(   then user_slot_value_addr user_slot_key_addr set_result                   )
 ( If set_result = re-entry then value address is in TOS - 1,                  )
 ( If set_result = full-hard-limit then no address                             )
 : hash-set
@@ -178,14 +183,16 @@
   dup 255 swap c!
 
   _hash-array-slot-user-addr  ( hash_addr key user_slot_addr )
+  dup 4 pick hash-key-size +  ( hash_addr key user_slot_key_addr user_slot_value_addr )
+  swap                        ( hash_addr key user_slot_value_addr user_slot_key_addr )
 
   ( Recommended to keep load factor under 70% )
-  rot dup hash-no-entries swap hash-size 7 * 10 / > ( key user_slot_value_addr )
+  4 roll dup hash-no-entries swap hash-size 7 * 10 / > ( key user_slot_value_addr user_slot_key_addr )
   if
-    swap drop
+    rot drop
     full-soft-limit
   else
-    swap drop
+    rot drop
     new-entry
   then
 ;
@@ -230,9 +237,9 @@ definer hashtable
   ( size key_size value_size )
   0 , ( no entries in hash table )
   3 pick , ( size of hash table )
-  2 pick 2 * , ( key size in bytes )
-  dup 2 * , ( value size in bytes )
-  + 2 * 1+ dup , ( bucket size in bytes, including occupied flag )
+  2 pick , ( key size in bytes )
+  dup , ( value size in bytes )
+  + 1+ dup , ( bucket size in bytes, including occupied flag )
   stringify ( hash func name )
   stringify ( cmp func name )
   * ( size of collision list in bytes )
