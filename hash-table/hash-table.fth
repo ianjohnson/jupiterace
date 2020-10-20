@@ -99,7 +99,7 @@ findword 59 bload fndwrd.bin
 : hash-find-slot
   over over                      ( hash_addr key hash_addr key )
   swap                           ( hash_addr key key hash_addr )
-  _hash-func-name thunk          ( hash_addr key hash )
+  _hash-func-name thunk abs      ( hash_addr key hash )
   3 pick                         ( hash_addr key hash hash_addr )
   hash-size                      ( hash_addr key hash hash_size )
   mod                            ( hash_addr key bucket_index )

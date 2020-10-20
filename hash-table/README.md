@@ -54,10 +54,9 @@ A few examples of the usage of the hash table are shown below.
 ;
 
 100 1 1 hashtable ht chf"chcf"
-hash-initialise
 
 ( Insert a key/value )
-ascii A hash-set .          ( 0 is a new entry )
+ht ascii A hash-set .       ( 0 is a new entry )
 ascii A swap c!             ( Store the key )
 ascii Z swap c!             ( Store the value )
 
@@ -91,10 +90,9 @@ c@ emit                     ( Displays 'Q' )
 ;
 
 100 2 2 hashtable ht hf"hcf"
-hash-initialise
 
 ( Insert a key/value )
-7 hash-set .                ( 0 is a new entry )
+ht 7 hash-set .             ( 0 is a new entry )
 7 swap !                    ( Store the key )
 667 swap !                  ( Store the value )
 
@@ -111,17 +109,102 @@ ht 7 hash-lookup
 @ .                         ( Displays '1023' )
 ```
 
-### String Keys and Integer Values
+### String Keys and Integer/Pointer Values
 ```forth
+( key_addr -> n )
 : shf
-  dup dup @ +
+  0                         ( key_addr hv )
+  over 1+                   ( key_addr hv sos_addr )
+  rot                       ( hv sos_addr key_addr )
+  c@                        ( hv sos_addr string_length )
+  over +                    ( hv sos_addr eos_addr )
+  swap                      ( hv eos_addr sos_addr )
+  do
+    i c@ + 13 * 
+  loop
 ;
 
+( key_addr bucket_key_addr -> n )
 : shcf
+  over c@ over c@ =
+  if
+    ( Equal string lengths )
+    dup c@                  ( key_addr bucket_key_addr length )
+    rot 1+                  ( bucket_key_addr length key_sos_addr )
+    rot 1+                  ( length key_sos_addr bucket_key_sos_addr )
+    begin
+      over c@ over c@ =
+      if
+        ( Characters match )
+	rot 1-              ( key_sos_addr bucket_key_sos_addr new_length )
+	dup 0=
+	if
+	  ( String match )
+	  drop drop drop
+	  ( Comparison result is equals )
+	  0
+	  ( End loop )
+	  1
+	else
+	  rot 1+            ( bucket_key_sos_addr new_length new_key_sos_addr )
+	  rot 1+            ( new_length new_key_sos_addr new_bucket_key_sos_addr )
+	  0
+	then
+      else
+        ( Characters do not match )
+        drop drop drop
+	( Comparison result is not equals )
+        1
+	( End Loop )
+	1
+      then
+    until
+  else
+    drop drop
+    1
+  then
 ;
 
-100 2 1 hashtable ht shf"shcf"
-hash-initialise
+( dest_string src_string -> )
+: string-copy
+  dup c@                    ( dest_string src_string length )
+  rot                       ( src_string length dest_string )
+  rot                       ( length dest_string src_string )
+  begin
+    dup c@                  ( length dest_string src_string char )
+    3 pick c!               ( length dest_string src_string )
+    rot 1-                  ( dest_string src_string new_length )
+    dup 0=
+    if
+      drop drop drop
+      0
+    else
+      rot 1+                ( src_string new_length new_dest_string )
+      rot 1+                ( new_length new_dest_string src_string )
+      1
+    then
+  until
+;
+
+definer string
+  stringify
+does>
+;
+
+
+
+100 6 1 hashtable ht shf"shcf"
+
+( Create some strings )
+string one one"
+string two two"
+string three three"
+
+( Insert key/value )
+ht one hash-set .           ( 0 is a new entry )
+one string-copy             ( Store the key )
+1 !
+
 
 
 ```
