@@ -57,19 +57,19 @@ hash-initialise
 ( Insert a key/value )
 ascii A hash-set .          ( 0 is a new entry )
 ascii A swap c!             ( Store the key )
-ascii Z swap c!
+ascii Z swap c!             ( Store the value )
 
 ( Lookup a value )
 ht ascii A hash-lookup
-c@ emit
+c@ emit                     ( Displays 'Z' )
 
 ( Re-insert key/value )
 ht ascii A hash-set .       ( 1 is a re-entry )
-ascii Q swap c!
+ascii Q swap c!             ( Store new value )
 
 ( Lookup new value )
 ht ascii A hash-lookup
-c@ emit
+c@ emit                     ( Displays 'Q' )
 ```
 
 ### Integer/Pointer Keys and Values
@@ -98,15 +98,15 @@ hash-initialise
 
 ( Lookup a value )
 ht 7 hash-lookup
-@ .                         ( Displays value stored )
+@ .                         ( Displays '667' )
 
 ( Re-insert a key/value )
 ht 7 hash-set .             ( 1 is re-entry )
-1023 swap !
+1023 swap !                 ( Store new value )
 
 ( Lookup new value )
 ht 7 hash-lookup
-@ .
+@ .                         ( Displays '1023' )
 ```
 
 ### String Keys and Integer Values
