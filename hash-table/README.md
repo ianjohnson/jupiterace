@@ -19,7 +19,9 @@ The hash word has the signature `( key_value -> n )`, the key is on TOS and the 
 The key comparison word has the signature `( key_value stored_key_addr -> n )`, if the keys are equal `n` should be `0`, otherwise non-zero. For keys of type integer this word can look like `: kcw @ = if 0 else 1 then ;`.
 
 For example, for a hash table of size 200 and keys and values of type integer can be created using:
-`200 2 2 hashtable ht khw"kcw"`
+```forth
+200 2 2 hashtable ht khw"kcw"
+```
 
 ## Loading Hash Table
 The Z80 `findword` routine can be loaded anywhere in memory. For example,
