@@ -1,6 +1,6 @@
 ( Open addressed hash table                                                )
 
-0 constant new
+0 constant new-entry
 1 constant re-entry
 2 constant full-soft-limit
 3 constant full-hard-limit
@@ -144,7 +144,10 @@
   then
 ;
 
-( hash_addr key -> [ussr_slot_value_addr] set_result )
+( hash_addr key -> [user_slot_[key|value]_addr] set_result                    )
+( If set_result = new-entry or full-soft-limit then key address is in TOS - 1 )
+( If set_result = re-entry then value address is in TOS - 1,                  )
+( If set_result = full-hard-limit then no address                             )
 : hash-set
   over over                    ( hash_addr key hash_addr key )
   hash-find-slot               ( hash_addr key bucket_index )
@@ -175,19 +178,26 @@
   dup 255 swap c!
 
   _hash-array-slot-user-addr  ( hash_addr key user_slot_addr )
-  ( store key )
-  dup 3 pick swap             ( hash_addr key user_slot_addr key user_slot_addr )
-  !                           ( hash_addr key user_slot_addr )
-  3 pick hash-key-size +      ( hash_addr key user_slot_value_addr )
 
+  ( Recommended to keep load factor under 70% )
   rot dup hash-no-entries swap hash-size 7 * 10 / > ( key user_slot_value_addr )
   if
     swap drop
     full-soft-limit
   else
     swap drop
-    new
+    new-entry
   then
+;
+
+( hash_addr -> hash_addr )
+: hash-initialise
+  0 over !
+  dup hash-size 0
+  ( Initialise the occupied flags in the bucket array )
+  do
+    dup i _hash-array-slot-addr 0 swap c!
+  loop
 ;
 
 ( Open address hash table definer                                          )
@@ -200,13 +210,13 @@
 (  - cmp_func_name = Name, stirng, of the word used to compare a key       )
 (                                                                          )
 ( Usage:                                                                   )
-(   200 1 1 hashtable ht [hash word name]"[compare word name]"             )
+(   200 1 1 hashtable ht [hash word name]"[key compare word name]"         )
 (                                                                          )
-( Parameter list:                                                          )
+( Parameter field:                                                         )
 (  - Number of entries MUST BE FIRST                                       )
 (  - Maximum number of entries                                             )
-(  - Key size in bytes                                                     )
-(  - Value size in bytes                                                   )
+(  - Key maximum size in bytes                                             )
+(  - Value maximum size in bytes                                           )
 (  - Key comparator word address                                           )
 (  - Hash value word address                                               )
 (  - Bucket size in bytes                                                  )
@@ -228,9 +238,5 @@ definer hashtable
   * ( size of collision list in bytes )
   allot
 does>
-  dup hash-size 0
-  ( Initialise the occupied flags in the bucket array )
-  do
-    dup i _hash-array-slot-addr 0 swap c!
-  loop
+  hash-initialise
 ;
