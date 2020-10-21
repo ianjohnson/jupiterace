@@ -53,6 +53,7 @@ A few examples of the usage of the hash table are shown below.
   then
 ;
 
+( Create a hash table with 100 entries and key and value size of 1 byte each )
 100 1 1 hashtable ht chf"chcf"
 
 ( Insert a key/value )
@@ -92,6 +93,7 @@ ht ascii W hash-lookup .    ( 0 denotes key not found )
   then
 ;
 
+( Create a hash table with 100 entries with key and value size of 2 bytes each )
 100 2 2 hashtable ht hf"hcf"
 
 ( Insert a key/value )
@@ -201,11 +203,15 @@ definer string
 does>
 ;
 
-100 4 2 hashtable ht shf"shcf"
+( Create a hash table with 100 entries with a key and value size of           )
+( 6 and 2 bytes respectively. The key size should be chosen to hold the       )
+( largest key string. String format in memory is compatiable with the type    )
+( word when used with count, e.g. three count type.                           )
+100 6 2 hashtable ht shf"shcf"
 
 ( Create some strings )
 string one one"
-string two two"
+string three three"
 
 ( Insert key/value )
 ht one hash-set .           ( 0 is a new entry )
@@ -225,5 +231,5 @@ ht one hash-lookup
 @ .                         ( Displays '11' )
 
 ( Lookup key not in hash table )
-ht two hash-lookup .        ( 0 denotes key not found )
+ht three hash-lookup .        ( 0 denotes key not found )
 ```
