@@ -71,6 +71,9 @@ ascii Q swap c!             ( Store new value )
 ( Lookup new value )
 ht ascii A hash-lookup
 c@ emit                     ( Displays 'Q' )
+
+( Lookup key not in hash table )
+ht ascii W hash-lookup .    ( 0 denotes key not found )
 ```
 
 ### Integer/Pointer Keys and Values
@@ -107,6 +110,9 @@ ht 7 hash-set .             ( 1 is re-entry )
 ( Lookup new value )
 ht 7 hash-lookup
 @ .                         ( Displays '1023' )
+
+( Lookup key not in hash table )
+ht 10 hash-lookup .         ( 0 denotes key not found )
 ```
 
 ### String Keys and Integer/Pointer Values
@@ -199,6 +205,7 @@ does>
 
 ( Create some strings )
 string one one"
+string two two"
 
 ( Insert key/value )
 ht one hash-set .           ( 0 is a new entry )
@@ -216,4 +223,7 @@ ht one hash-set             ( 1 is a re-entry )
 ( Lookup new value )
 ht one hash-lookup
 @ .                         ( Displays '11' )
+
+( Lookup key not in hash table )
+ht two hash-lookup .        ( 0 denotes key not found )
 ```
