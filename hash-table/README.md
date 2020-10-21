@@ -206,7 +206,7 @@ does>
 ( Create a hash table with 100 entries with a key and value size of           )
 ( 6 and 2 bytes respectively. The key size should be chosen to hold the       )
 ( largest key string. String format in memory is compatiable with the type    )
-( word when used with count, e.g. three count type.                           )
+( word when used with count, e.g. three count type                            )
 100 6 2 hashtable ht shf"shcf"
 
 ( Create some strings )
