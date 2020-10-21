@@ -167,21 +167,25 @@ ht 7 hash-lookup
 
 ( dest_string src_string -> )
 : string-copy
-  dup c@                    ( dest_string src_string length )
-  rot                       ( src_string length dest_string )
-  rot                       ( length dest_string src_string )
+  dup c@ dup                ( dest_string src_string length length )
+  4 pick                    ( dest_string src_string length length dest_string )
+  ( Copy length )
+  c!                        ( dest_string src_string length )
+  ( Copy string )
+  rot 1+                    ( src_string length dest_string )
+  rot 1+                    ( length dest_string src_string )
   begin
     dup c@                  ( length dest_string src_string char )
     3 pick c!               ( length dest_string src_string )
     rot 1-                  ( dest_string src_string new_length )
     dup 0=
-    if
+    if                      ( dest_string src_string new_length )
       drop drop drop
-      0
+      1
     else
       rot 1+                ( src_string new_length new_dest_string )
-      rot 1+                ( new_length new_dest_string src_string )
-      1
+      rot 1+                ( new_length new_dest_string new_src_string )
+      0
     then
   until
 ;
@@ -191,20 +195,25 @@ definer string
 does>
 ;
 
-
-
-100 6 1 hashtable ht shf"shcf"
+100 4 2 hashtable ht shf"shcf"
 
 ( Create some strings )
 string one one"
-string two two"
-string three three"
 
 ( Insert key/value )
 ht one hash-set .           ( 0 is a new entry )
 one string-copy             ( Store the key )
-1 !
+1 swap !                    ( Store the value )
 
+( Lookup value )
+ht one hash-lookup
+@ .                         ( Displays '1' )
 
+( Re-insert key/value )
+ht one hash-set             ( 1 is a re-entry )
+11 swap !                   ( Store the new value )
 
+( Lookup new value )
+ht one hash-lookup
+@ .                         ( Displays '11' )
 ```
