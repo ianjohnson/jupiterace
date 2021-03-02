@@ -16,7 +16,7 @@ The following information is required to create a hash table:
 
 The hash word has the signature `( key_value -> n )`, the key is on TOS and the word should replace this value with a hash value for the key. For keys of type integer this word can be just `: khw ;`.
 
-The key comparison word has the signature `( key_value stored_key_addr -> n )`, if the keys are equal `n` should be `0`, otherwise non-zero. For keys of type integer this word can look like `: kcw @ = if 0 else 1 then ;`.
+The key comparison word has the signature `( key_value stored_key_addr -> n )`, if the keys are equal `n` should be `0`, otherwise non-zero. For keys of type integer this word can look like `: kcw @ - ;`.
 
 For example, for a hash table of size 200 and keys and values of type integer can be created using:
 ```forth
