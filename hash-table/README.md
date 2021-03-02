@@ -45,12 +45,7 @@ A few examples of the usage of the hash table are shown below.
 
 ( c key_addr -> n )
 : chcf
-  c@ =
-  if
-    0
-  else
-    1
-  then
+  c@ -
 ;
 
 ( Create a hash table with 100 entries and key and value size of 1 byte each )
@@ -85,12 +80,7 @@ ht ascii W hash-lookup .    ( 0 denotes key not found )
 
 ( n key_addr -> n )
 : hcf
-  @ =
-  if
-    0
-  else
-    1
-  then
+  @ -
 ;
 
 ( Create a hash table with 100 entries with key and value size of 2 bytes each )
