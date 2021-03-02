@@ -1,7 +1,7 @@
 # Open Addressed Hash Table
 This is an implementation of a hash table written in Forth and a few bytes of Z80. It uses [open addressing](https://en.wikipedia.org/wiki/Open_addressing) which has a number of drawbacks but allows the whole hash table to be easily embedded in a Forth word using `definer`.
 
-## Finding Words in Forth Words
+## Finding Forth Words in Forth Words
 The hash table implementation uses _callbacks_ to generate hash values and hash value comparisons. This allow users to store any type of data in the hash table. Two words are required that generate hash values and key comparisons, and the _name_ of these words are stored in the hash table as strings. When the implementation requires these words the Z80 code is called, to search for the compilation addresses, and the words' addresses are used to execute them. Since the Jupiter Ace can change a word's compilation address during compilation of other words this method of _delayed dispatch_ seems the only method to use. 
 
 A Z80 routine is required since the `find` word on the Jupiter Ace does not work as expected when called from a Forth word. The Z80 emulates the ROM routine for `find` but can be called from in a word, and will return the correct compilation address of a Forth word if it exists. The Z80 routine will add a 0 to TOS if the searched word does not exist, otherwise the compilation address of the word is on TOS. The Z80 routine is relocatable, so you can choose where you store this routine. However the constant `findword` in the Forth code will need to be changed.

@@ -15,7 +15,7 @@ findword 59 bload fndwrd.bin
 ;
 
 ( String )
-: stringifgy
+: stringify
   ascii " word count dup c,
   over + swap
   do
