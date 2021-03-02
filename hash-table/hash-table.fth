@@ -245,5 +245,4 @@ definer hashtable
   * ( size of collision list in bytes )
   allot
 does>
-  hash-initialise
 ;
