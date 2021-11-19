@@ -8,7 +8,7 @@
 ( findword )
 16 base c!
 
-create findword df C, af C, 47 C, 1a C, 4f C, 13 C, 2a C, 33 C, 3c C, 7e C, 23 C, 66 C, 6f C, 7e C, e6 C, 3f C, 28 C, 1e C, a9 C, 20 C, 1b C, d5 C, e5 C, cd C, e8 C, 15 C, 41 C, 1a C, cd C, 07 C, 08 C, 13 C, ae C, e6 C, 7f C, 23 C, 20 C, 08 C, 10 C, f3 C, d1 C, 13 C, d7 C, d1 C, fd C, e9 C, e1 C, d1 C, 2b C, 7e C, 2b C, 6e C, 67 C, b5 C, 20 C, d5 C, c3 C, 8a C, 06 C, findword dup 2- !
+create findword df c, af c, 47 c, 1a c, 4f c, 13 c, 2a c, 33 c, 3c c, 7e c, 23 c, 66 c, 6f c, 7e c, e6 c, 3f c, 28 c, 1e c, a9 c, 20 c, 1b c, d5 c, e5 c, cd c, e8 c, 15 c, 41 c, 1a c, cd c, 07 c, 08 c, 13 c, ae c, e6 c, 7f c, 23 c, 20 c, 08 c, 10 c, f3 c, d1 c, 13 c, d7 c, d1 c, fd c, e9 c, e1 c, d1 c, 2b c, 7e c, 2b c, 6e c, 67 c, b5 c, 20 c, d5 c, c3 c, 8a c, 06 c, findword dup 2- !
 
 decimal
 
