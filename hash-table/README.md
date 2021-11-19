@@ -23,17 +23,6 @@ For example, for a hash table of size 200 and keys and values of type integer ca
 200 2 2 hashtable ht khw"kcw"
 ```
 
-## Loading Hash Table
-The Z80 `findword` routine can be loaded anywhere in memory. For example,
-```
-( Set RAM top )
-65000 15384 ! quit
-65000 59 bload fndwrd.bin
-load ht.fth
-```
-
-The constant `findword` should be altered in the Forth code if the Z80 routine is placed anywhere else in memory.
-
 ## Hash Table Usage
 A few examples of the usage of the hash table are shown below.
 

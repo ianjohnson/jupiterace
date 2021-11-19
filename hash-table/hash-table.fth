@@ -4,11 +4,13 @@
 1 constant re-entry
 2 constant full-soft-limit
 3 constant full-hard-limit
-65000 constant findword
 
-( Set RAM top )
-findword 15384 ! quit
-findword 59 bload fndwrd.bin
+( findword )
+16 base c!
+
+create findword df C, af C, 47 C, 1a C, 4f C, 13 C, 2a C, 33 C, 3c C, 7e C, 23 C, 66 C, 6f C, 7e C, e6 C, 3f C, 28 C, 1e C, a9 C, 20 C, 1b C, d5 C, e5 C, cd C, e8 C, 15 C, 41 C, 1a C, cd C, 07 C, 08 C, 13 C, ae C, e6 C, 7f C, 23 C, 20 C, 08 C, 10 C, f3 C, d1 C, 13 C, d7 C, d1 C, fd C, e9 C, e1 C, d1 C, 2b C, 7e C, 2b C, 6e C, 67 C, b5 C, 20 C, d5 C, c3 C, 8a C, 06 C, findword dup 2- !
+
+decimal
 
 : count
   dup 1+ swap c@
@@ -25,7 +27,7 @@ findword 59 bload fndwrd.bin
 
 ( string_addr -> [n] )
 : thunk
-  findword call dup 0=
+  findword dup 0=
   if
     ." ERROR 13"
     cr
